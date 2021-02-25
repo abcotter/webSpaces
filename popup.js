@@ -5,6 +5,17 @@
 // 	changeColor.style.backgroundColor = color;
 // });
 
+window.onload = function () {
+	var spacesList = document.getElementById("main");
+
+	chrome.storage.sync.get("spaces", ({ spaces }) => {
+		if (spaces.length == 0) {
+			spacesList.innerHTML = "<div>You don't have any spaces yet.</div>"
+		}
+		spaces.forEach(space => spacesList.innerHTML += "<div> " + space + "</div>");
+	});
+};
+
 // When the button is clicked, inject setPageBackgroundColor into current page
 // changeColor.addEventListener("click", async () => {
 // 	let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
