@@ -6,7 +6,7 @@
 // });
 
 window.onload = function () {
-	var spacesList = document.getElementById("main");
+	var spacesList = document.getElementById("spaces");
 
 	chrome.storage.sync.get("spaces", ({ spaces }) => {
 		if (spaces.length == 0) {
@@ -16,20 +16,25 @@ window.onload = function () {
 	});
 };
 
-// When the button is clicked, inject setPageBackgroundColor into current page
-// changeColor.addEventListener("click", async () => {
-// 	let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+document.getElementById("capture").addEventListener("click", () => {
+	chrome.tabs.query({ currentWindow: true }, (tabs) => {
+		console.log(tabs)
 
-// 	chrome.scripting.executeScript({
-// 		target: { tabId: tab.id },
-// 		function: setPageBackgroundColor,
-// 	});
-// });
+		tabIds = Array.from({ length: tabs.length }, (_, i) => i + tabs[0].id)
+		console.log(tabIds)
 
-// // The body of this function will be executed as a content script inside the
-// // current page
-// function setPageBackgroundColor() {
-// 	chrome.storage.sync.get("color", ({ color }) => {
-// 		document.body.style.backgroundColor = color;
-// 	});
-// }
+		console.log(chrome.windows.WINDOW_ID_CURRENT)
+
+		chrome.windows.create({}, (window) => {
+			tabs.forEach(tab => {
+				console.log(tab)
+				chrome.tabs.create({
+					active: tab.active,
+					index: tab.index,
+					url: tab.url,
+					windowId: window.id
+				})
+			});
+		})
+	})
+})
