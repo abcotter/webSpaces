@@ -6,12 +6,22 @@
   <body>
 		<div class="spaces-container">
 			<div class="header">
-				<div class="title">SPACES<img src="/assets/camera-outline.svg" alt="capture new space" class="add-button"></div>
+				<div class="title">SPACES</div>
 				<div class="sub-title">take a snapshots of your brower session to easily reload whenever</div>
 			</div>
 			<div class="vertical-divider"></div>
-			<div id="main" class="spaces">
-				<div></div>
+			<div id="main">
+				<div>
+					<span class="new-space-blurb">Capture google's current state for later:</span>
+					<div class="new-space">
+						<input type="text" id="spaceName" name="spaceName" placeholder="My New Space">
+						<img src="/assets/camera-outline.svg" alt="capture new space" class="add-button" id="capture">
+					</div>
+				</div>
+				<div style="margin-top: 15px;">
+					<div class="new-space-blurb">Open a saved space:</div>
+					<div id="spaces" class="spaces"></div>
+				</div>
 			</div>
 		</div>
 		<script src="popup.js"></script>
