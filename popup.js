@@ -14,27 +14,27 @@ window.onload = function () {
 		}
 		spaces.forEach(space => spacesList.innerHTML += "<div> " + space + "</div>");
 	});
+};
 
-	document.getElementById("capture").addEventListener("click", () => {
-		chrome.tabs.query({ currentWindow: true }, (tabs) => {
-			console.log(tabs)
+document.getElementById("capture").addEventListener("click", () => {
+	chrome.tabs.query({ currentWindow: true }, (tabs) => {
+		console.log(tabs)
 
-			tabIds = Array.from({ length: tabs.length }, (_, i) => i + tabs[0].id)
-			console.log(tabIds)
+		tabIds = Array.from({ length: tabs.length }, (_, i) => i + tabs[0].id)
+		console.log(tabIds)
 
-			console.log(chrome.windows.WINDOW_ID_CURRENT)
+		console.log(chrome.windows.WINDOW_ID_CURRENT)
 
-			chrome.windows.create({}, (window) => {
-				tabs.forEach(tab => {
-					console.log(tab)
-					chrome.tabs.create({
-						active: tab.active,
-						index: tab.index,
-						url: tab.url,
-						windowId: window.id
-					})
-				});
-			})
+		chrome.windows.create({}, (window) => {
+			tabs.forEach(tab => {
+				console.log(tab)
+				chrome.tabs.create({
+					active: tab.active,
+					index: tab.index,
+					url: tab.url,
+					windowId: window.id
+				})
+			});
 		})
 	})
-};
+})
