@@ -1,6 +1,6 @@
 {
-	"name": "Spaces",
-	"description": "Build an Extension!",
+	"name": "StateStore",
+	"description": "Save your browsers state for later!",
 	"version": "0.0.0.1",
 	"manifest_version": 3,
 	"background": {
@@ -13,10 +13,7 @@
 	},
 	"permissions": [
 		"storage",
-		"activeTab",
-		"scripting",
-		"tabs",
-		"sessions"
+		"tabs"
 	],
 	"action": {
 		"default_popup": "popup.html"
