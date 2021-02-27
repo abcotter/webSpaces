@@ -1,33 +1,9 @@
-window.onload = function () {
-	let spacesList = document.getElementById("spaces");
-
-	chrome.storage.sync.get("spaces", ({ spaces }) => {
-		spaces.forEach(space => {
-			spacesList.innerHTML += '<button class="space-button" id="' + space.spaceName + ">" + space.spaceName + '</button><img src="/assets/delete.svg" class="add-button" />'
-		});
-		let spaceSlots = spacesList.querySelectorAll(".space-button")
-		spaceSlots.forEach(space => {
-			space.addEventListener("click", (e) => {
-				alert(e.target.id)
-				chrome.storage.sync.get("spaces", ({ spaces }) => {
-					spaceToLaunchTabs = spaces.filter(space => space.spaceName == e.target.id)[0].spaceTabs
-					chrome.windows.create({}, (window) => {
-						spaceToLaunchTabs.forEach(tab => {
-							chrome.tabs.create({
-								active: tab.active,
-								index: tab.index,
-								url: tab.url,
-								windowId: window.id
-							})
-						});
-					})
-				});
-			});
-		})
-	});
-};
-
+// Event listener to capture a new space
 document.getElementById("capture").addEventListener("click", () => {
+	if (document.getElementById("spaceName").value == "") {
+		alert("You need to give your new space a name.")
+		return
+	}
 	chrome.tabs.query({ currentWindow: true }, (tabs) => {
 		chrome.storage.sync.get("spaces", ({ spaces }) => {
 			let newSpace = {
@@ -46,44 +22,54 @@ document.getElementById("capture").addEventListener("click", () => {
 	})
 })
 
+// handler to trigger loadSpaces when the extension is loaded
+window.onload = function () {
+	chrome.storage.sync.get("spaces", ({ spaces }) => {
+		loadSpaces(spaces)
+	});
+};
+
+// handler to ltrigger loadSpaces when a space is added or deleted
 chrome.storage.onChanged.addListener((changes, type) => {
 	if ('spaces' in changes) {
-		let spacesList = document.getElementById("spaces");
-		spacesList.innerHTML = "";
 		let newSpaces = changes.spaces.newValue
-		newSpaces.forEach(space => {
-			spacesList.innerHTML += "<button class='space-button' id=" + space.spaceName + ">" + space.spaceName + "</button><img src=\"/assets/delete.svg\" />"
-		});
-		let spaceSlots = spacesList.querySelectorAll(".space-button")
-		spaceSlots.forEach(space => {
-			space.addEventListener("click", (e) => {
-				alert(e.target.id)
-				chrome.storage.sync.get("spaces", ({ spaces }) => {
-					spaceToLaunchTabs = spaces.filter(space => space.spaceName == e.target.id)[0].spaceTabs
-					chrome.windows.create({}, (window) => {
-						spaceToLaunchTabs.forEach(tab => {
-							chrome.tabs.create({
-								active: tab.active,
-								index: tab.index,
-								url: tab.url,
-								windowId: window.id
-							})
-						});
-					})
-				});
-			});
-		})
+		loadSpaces(newSpaces)
 	}
 })
 
-//  this is code for opening and populating the new window "space"
-// chrome.windows.create({}, (window) => {
-// 	tabs.forEach(tab => {
-// 		chrome.tabs.create({
-// 			active: tab.active,
-// 			index: tab.index,
-// 			url: tab.url,
-// 			windowId: window.id
-// 		})
-// 	});
-// })
+// function that builds and injects the spaces into the html with event listeners for each space
+function loadSpaces(spacesToLoad) {
+	let spacesList = document.getElementById("spaces");
+	spacesList.innerHTML = "";
+
+	spacesToLoad.forEach(space => {
+		spacesList.innerHTML += '<div id="' + space.spaceName + 'Bin"><button class="space-button" id="' + space.spaceName + '">' + space.spaceName + '</button><img class="space-delete" id="' + space.spaceName + '" src="/assets/delete.svg" /></div>'
+	});
+	let spaceButtons = spacesList.querySelectorAll(".space-button")
+	spaceButtons.forEach(space => {
+		space.addEventListener("click", (e) => {
+			chrome.storage.sync.get("spaces", ({ spaces }) => {
+				spaceToLaunchTabs = spaces.filter(space => space.spaceName == e.target.id)[0].spaceTabs
+				chrome.windows.create({}, (window) => {
+					spaceToLaunchTabs.forEach(tab => {
+						chrome.tabs.create({
+							active: tab.active,
+							index: tab.index,
+							url: tab.url,
+							windowId: window.id
+						})
+					});
+				})
+			});
+		});
+	})
+	let spaceDeletes = spacesList.querySelectorAll(".space-delete")
+	spaceDeletes.forEach(space => {
+		space.addEventListener("click", (e) => {
+			chrome.storage.sync.get("spaces", ({ spaces }) => {
+				spaces = spaces.filter(space => space.spaceName != e.target.id)
+				chrome.storage.sync.set({ spaces }, () => { });
+			});
+		});
+	})
+}
