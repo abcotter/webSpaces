@@ -3,8 +3,12 @@ window.onload = function () {
 
 	chrome.storage.sync.get("spaces", ({ spaces }) => {
 		spaces.forEach(space => {
-			spacesList.innerHTML += "<button id=" + space.spaceName + ">" + space.spaceName + "</button>"
-			document.getElementById(space.spaceName).addEventListener("click", (e) => {
+			spacesList.innerHTML += '<button class="space-button" id="' + space.spaceName + ">" + space.spaceName + '</button><img src="/assets/delete.svg" class="add-button" />'
+		});
+		let spaceSlots = spacesList.querySelectorAll(".space-button")
+		spaceSlots.forEach(space => {
+			space.addEventListener("click", (e) => {
+				alert(e.target.id)
 				chrome.storage.sync.get("spaces", ({ spaces }) => {
 					spaceToLaunchTabs = spaces.filter(space => space.spaceName == e.target.id)[0].spaceTabs
 					chrome.windows.create({}, (window) => {
@@ -19,7 +23,7 @@ window.onload = function () {
 					})
 				});
 			});
-		});
+		})
 	});
 };
 
@@ -43,15 +47,17 @@ document.getElementById("capture").addEventListener("click", () => {
 })
 
 chrome.storage.onChanged.addListener((changes, type) => {
-	console.log(changes, type)
 	if ('spaces' in changes) {
 		let spacesList = document.getElementById("spaces");
 		spacesList.innerHTML = "";
 		let newSpaces = changes.spaces.newValue
-		console.log(newSpaces)
 		newSpaces.forEach(space => {
-			spacesList.innerHTML += "<button id=" + space.spaceName + ">" + space.spaceName + "</button>"
-			document.getElementById(space.spaceName).addEventListener("click", (e) => {
+			spacesList.innerHTML += "<button class='space-button' id=" + space.spaceName + ">" + space.spaceName + "</button><img src=\"/assets/delete.svg\" />"
+		});
+		let spaceSlots = spacesList.querySelectorAll(".space-button")
+		spaceSlots.forEach(space => {
+			space.addEventListener("click", (e) => {
+				alert(e.target.id)
 				chrome.storage.sync.get("spaces", ({ spaces }) => {
 					spaceToLaunchTabs = spaces.filter(space => space.spaceName == e.target.id)[0].spaceTabs
 					chrome.windows.create({}, (window) => {
@@ -66,7 +72,7 @@ chrome.storage.onChanged.addListener((changes, type) => {
 					})
 				});
 			});
-		});
+		})
 	}
 })
 
