@@ -47,7 +47,7 @@ function loadSpaces(spacesToLoad) {
 	spacesList.innerHTML = "";
 
 	spacesToLoad.forEach(space => {
-		spacesList.innerHTML += '<div id="' + space.spaceName + 'Bin"><button class="space-button" id="' + space.spaceName + '">' + space.spaceName + '</button><img class="space-delete" id="' + space.spaceName + '" src="/assets/delete.svg" /></div>'
+		spacesList.innerHTML += '<div style="display: flex;" id="' + space.spaceName + 'Bin"><button class="space-button" id="' + space.spaceName + '">' + space.spaceName + '</button><img class="space-delete" id="' + space.spaceName + '" src="/assets/delete.svg" /></div>'
 	});
 	let spaceButtons = spacesList.querySelectorAll(".space-button")
 	spaceButtons.forEach(space => {
