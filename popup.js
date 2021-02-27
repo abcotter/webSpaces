@@ -6,6 +6,10 @@ document.getElementById("capture").addEventListener("click", () => {
 	}
 	chrome.tabs.query({ currentWindow: true }, (tabs) => {
 		chrome.storage.sync.get("spaces", ({ spaces }) => {
+			if (spaces.some(space => space.spaceName == document.getElementById("spaceName").value)) {
+				alert("A space with that name already exists.")
+				return
+			}
 			let newSpace = {
 				spaceName: document.getElementById("spaceName").value,
 				spaceTabs: tabs.map(item => {
