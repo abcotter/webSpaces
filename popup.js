@@ -1,40 +1,83 @@
-// Initialize button with user's preferred color
-// let changeColor = document.getElementById("changeColor");
-
-// chrome.storage.sync.get("color", ({ color }) => {
-// 	changeColor.style.backgroundColor = color;
-// });
-
 window.onload = function () {
-	var spacesList = document.getElementById("spaces");
+	let spacesList = document.getElementById("spaces");
 
 	chrome.storage.sync.get("spaces", ({ spaces }) => {
-		if (spaces.length == 0) {
-			spacesList.innerHTML = "<div>You don't have any spaces yet.</div>"
-		}
-		spaces.forEach(space => spacesList.innerHTML += "<div> " + space + "</div>");
+		spaces.forEach(space => {
+			spacesList.innerHTML += "<button id=" + space.spaceName + ">" + space.spaceName + "</button>"
+			document.getElementById(space.spaceName).addEventListener("click", (e) => {
+				chrome.storage.sync.get("spaces", ({ spaces }) => {
+					spaceToLaunchTabs = spaces.filter(space => space.spaceName == e.target.id)[0].spaceTabs
+					chrome.windows.create({}, (window) => {
+						spaceToLaunchTabs.forEach(tab => {
+							chrome.tabs.create({
+								active: tab.active,
+								index: tab.index,
+								url: tab.url,
+								windowId: window.id
+							})
+						});
+					})
+				});
+			});
+		});
 	});
 };
 
 document.getElementById("capture").addEventListener("click", () => {
 	chrome.tabs.query({ currentWindow: true }, (tabs) => {
-		console.log(tabs)
-
-		tabIds = Array.from({ length: tabs.length }, (_, i) => i + tabs[0].id)
-		console.log(tabIds)
-
-		console.log(chrome.windows.WINDOW_ID_CURRENT)
-
-		chrome.windows.create({}, (window) => {
-			tabs.forEach(tab => {
-				console.log(tab)
-				chrome.tabs.create({
-					active: tab.active,
-					index: tab.index,
-					url: tab.url,
-					windowId: window.id
+		chrome.storage.sync.get("spaces", ({ spaces }) => {
+			let newSpace = {
+				spaceName: document.getElementById("spaceName").value,
+				spaceTabs: tabs.map(item => {
+					return {
+						'active': item.active,
+						'index': item.index,
+						'url': item.url
+					}
 				})
-			});
-		})
+			};
+			spaces.push(newSpace);
+			chrome.storage.sync.set({ spaces }, () => { });
+		});
 	})
 })
+
+chrome.storage.onChanged.addListener((changes, type) => {
+	console.log(changes, type)
+	if ('spaces' in changes) {
+		let spacesList = document.getElementById("spaces");
+		spacesList.innerHTML = "";
+		let newSpaces = changes.spaces.newValue
+		console.log(newSpaces)
+		newSpaces.forEach(space => {
+			spacesList.innerHTML += "<button id=" + space.spaceName + ">" + space.spaceName + "</button>"
+			document.getElementById(space.spaceName).addEventListener("click", (e) => {
+				chrome.storage.sync.get("spaces", ({ spaces }) => {
+					spaceToLaunchTabs = spaces.filter(space => space.spaceName == e.target.id)[0].spaceTabs
+					chrome.windows.create({}, (window) => {
+						spaceToLaunchTabs.forEach(tab => {
+							chrome.tabs.create({
+								active: tab.active,
+								index: tab.index,
+								url: tab.url,
+								windowId: window.id
+							})
+						});
+					})
+				});
+			});
+		});
+	}
+})
+
+//  this is code for opening and populating the new window "space"
+// chrome.windows.create({}, (window) => {
+// 	tabs.forEach(tab => {
+// 		chrome.tabs.create({
+// 			active: tab.active,
+// 			index: tab.index,
+// 			url: tab.url,
+// 			windowId: window.id
+// 		})
+// 	});
+// })
