@@ -67,3 +67,7 @@ body {
 input[type=text] {
   width: 240px;
 }
+
+.space-button {
+  width: 100%;
+}
